@@ -1,0 +1,21 @@
+---
+- name: fluentbit | setup apt
+  include_vars: apt.yml
+
+- name: fluentbit | install package key
+  apt_key:
+    url: http://packages.fluentbit.io/fluentbit.key
+    state: present
+  register: result
+
+- name: fluentbit | install repo
+  apt_repository:
+    repo: deb http://packages.fluentbit.io/ubuntu xenial main
+    state: present
+  register: result
+  when: result|changed
+
+- name: fluentbit | update repo cache
+  apt:
+    update_cache: yes
+  when: result|changed

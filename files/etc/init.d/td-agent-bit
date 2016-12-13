@@ -1,0 +1,82 @@
+#!/bin/bash
+#
+# /etc/rc.d/init.d/td-agent-bit
+#
+# chkconfig: - 80 20
+# description: td-agent-bit
+# processname: td-agent-bit
+#
+### BEGIN INIT INFO
+# Provides:          td-agent-bit
+# Default-Stop:      0 1 6
+# Required-Start:    $local_fs
+# Required-Stop:     $local_fs
+# Short-Description: td-agent-bit's init script
+# Description:       td-agent-bit is a data collector
+### END INIT INFO
+
+# Source function library.
+. /etc/init.d/functions
+
+name="td-agent-bit"
+prog="td-agent-bit"
+td_agent_bit=/opt/td-agent-bit/bin/td-agent-bit
+
+if [ -f /etc/sysconfig/$prog ]; then
+	. /etc/sysconfig/$prog
+fi
+TD_AGENT_BIT_ARGS="${TD_AGENT_ARGS--c /etc/td-agent-bit/td-agent-bit.conf}"
+
+RETVAL=0
+
+start() {
+	ulimit -n 65536
+	echo -n "Starting $name: "
+        nohup ${td_agent_bit} ${TD_AGENT_BIT_ARGS} 2>&1 | logger & # >/dev/null
+	RETVAL=$?
+	echo
+	[ $RETVAL -eq 0 ] && touch /var/lock/subsys/$prog
+	return $RETVAL
+}
+
+stop() {
+	echo -n "Shutting down $name: "
+	killproc $prog
+	RETVAL=$?
+	if [ $RETVAL -eq 0 ]; then
+	    success
+	else
+	    failure
+	fi
+	echo
+	[ $RETVAL -eq 0 ] && rm -f /var/lock/subsys/$prog
+	return $RETVAL
+}
+
+restart() {
+	stop
+	start
+}
+
+case "$1" in
+    start)
+	start
+	;;
+    stop)
+	stop
+	;;
+    restart)
+	restart
+	;;
+    condrestart)
+	[ -f /var/lock/subsys/$prog ] && restart || :
+	;;
+    status)
+	status 'td-agent-bit'
+	;;
+    *)
+	echo "Usage: $prog {start|stop|restart|condrestart|status}"
+	exit 1
+	;;
+esac
+exit $?

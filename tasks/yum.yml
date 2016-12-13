@@ -1,0 +1,25 @@
+---
+- name: fluentbit | setup yum
+  include_vars: yum.yml
+
+- name: fluentbit | install package key
+  rpm_key:
+    key: http://packages.fluentbit.io/fluentbit.key
+    state: present
+
+- name: fluentbit | install repo
+  yum_repository:
+    name: td-agent-bit
+    description: TD Agent Bit
+    baseurl: http://packages.fluentbit.io/centos/7
+    gpgkey: http://packages.fluentbit.io/fluentbit.key
+    gpgcheck: yes
+    enabled: yes
+    state: present
+  register: result
+
+# - name: fluentbit | update repo cache
+#   yum:
+#    update_cache: yes
+#  when: result|changed
+

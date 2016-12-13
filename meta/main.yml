@@ -1,0 +1,24 @@
+galaxy_info:
+  author: Sean Summers
+  description: Install fluentbit (aka td-agent-bit)
+  company: Hesburgh Libraries, University of Notre Dame
+  license: Apache
+  min_ansible_version: 2.0
+  platforms:
+  - name: Fedora
+    versions:
+    - all
+  - name: Amazon
+    versions:
+    - all
+  - name: Ubuntu
+    versions:
+    - all
+  - name: Debian
+    versions:
+    - all
+  galaxy_tags:
+  - logging
+  - monitoring
+  - system
+dependencies: []

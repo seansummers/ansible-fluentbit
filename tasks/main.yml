@@ -1,0 +1,39 @@
+---
+- name: fluentbit | setup ansible
+  setup:
+  when: ansible_pkg_mgr is undefined
+
+- name: fluentbit | setup repo
+  include: '{{ ansible_pkg_mgr }}.yml'
+
+- name: fluentbit | install package
+  package:
+    name: '{{ fluentbit_package }}'
+    state: latest
+
+- name: fluentbit | update system limits
+  pam_limits:
+    domain: '{{ item.domain }}'
+    limit_type: '{{ item.type }}'
+    limit_item: '{{ item.name }}'
+    value: '{{ item.value }}'
+    use_max: yes
+  with_items:
+  - { domain: root, type: soft, name: nofile, value: '65536' }
+  - { domain: root, type: hard, name: nofile, value: '65536' }
+  - { domain: '*', type: soft, name: nofile, value: '65536' }
+  - { domain: '*', type: hard, name: nofile, value: '65536' }
+
+- name: fluentbit | update init script
+  copy:
+    src: etc/init.d/td-agent-bit
+    dest: /etc/init.d/td-agent-bit
+    owner: root
+    group: root
+    mode: u=rwx,go=rx
+
+# - name: fluentbit | fluentbit enable
+#   service:
+#     name: '{{ fluentbit_package }}'
+#     enabled: yes
+#     state: started
